@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package httptun;
+option go_package = "github.com/rfratto/apitun/httptun";
+
+// The Proxy service allows for clients to register themselves as a "proxy
+// target," allowing to act as an HTTP server through a proxy without having to
+// open ports to the internet.
+service Proxy {
+  // Register registers the client as a proxy target. The clent MUST provide
+  // an X-Scope-ProxyID header when calling this method that uniquely identifies
+  // themselves amongst other connected peers. Once connected, the client
+  // should respond to any request provided by the server.
+  rpc Register(stream Response) returns (stream Request);
+}
+
+message Request {
+  // ID of the request. Generated responses must have a matchnig ID.
+  // The peer will ensure that no two concurrent requests have the same ID.
+  int64 id = 1;
+  // Encoded HTTP request.
+  bytes request = 2;
+}
+
+message Response {
+  // ID of the response, matching an ID of an incoming request.
+  int64 id = 1;
+  // Encoded HTTP response.
+  bytes response = 2;
+}
+
